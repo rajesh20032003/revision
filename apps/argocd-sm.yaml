@@ -1,0 +1,38 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: ApplicationSet
+# metadata: 
+#   name: shop-env 
+#   namespace: argocd 
+# spec:
+#   generators:
+#     - list:
+#        elements: 
+#          - env: stage
+#          - env: prod 
+#          - env: dev 
+#   template:
+#     metadata:
+#       name: 'shop-env-{{env}}'
+#     spec:
+#       project: default 
+#       source:
+#         repoURL: "https://github.com/rajesh20032003/revision"
+#         targetRevision: HEAD 
+#         path: helm-
+#         helm:
+#           valueFiles:
+#             - 'values-{{ env }}.yaml'
+#       destination: 
+#         server: "https://kubernetes.default.svc"
+#         namespace: "shop-{{env}}"
+#       ignoreDifferences:
+#         - group: apps 
+#           kind: Deployment 
+#           jsonPointers:
+#             - /spec/replicas 
+#       syncPolicy:
+#         automated:
+#           prune: true 
+#           selfHeal: true 
+#         syncOptions:
+#           - createNamespace=true 

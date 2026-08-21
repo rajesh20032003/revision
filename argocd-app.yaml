@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: "https://github.com/rajesh20032003/revision"
     targetRevision: HEAD 
-    path: k8s 
+    path: apps 
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: shop
