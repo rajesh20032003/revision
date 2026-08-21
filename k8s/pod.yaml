@@ -1,65 +1,65 @@
-apiVersion: v1 
-kind: Pod 
-metadata:
-  name: my-pod 
-spec:
+# apiVersion: v1 
+# kind: Pod 
+# metadata:
+#   name: my-pod 
+# spec:
 
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 3000
-    fsGroup: 2000
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
+#   securityContext:
+#     runAsUser: 1000
+#     runAsGroup: 3000
+#     fsGroup: 2000
+#     runAsNonRoot: true
+#     seccompProfile:
+#       type: RuntimeDefault
 
-  containers:
-    - name: mycontainer 
-      image: nginx:1.27.0 
-      ports:
-        - containerPort: 80 
-      securityContext:
-        allowPrivilegeEscalation: false
-        capabilities:
-          drop:
-            - ALL
-        privileged: false
-        readOnlyRootFilesystem: true
-      volumeMounts:
-        - name: myvolume 
-          mountPath: /tmp
-        - name: nginx-cache 
-          mountPath: /var/cache/nginx
-        - name: nginx-log 
-          mountPath: /var/log/nginx
-        - name: nginx-run 
-          mountPath: /var/run
-      resources:
-        requests:
-          cpu: "50m"
-          memory: "128Mi"
-        limits:
-          cpu: "100m"
-          memory: "256Mi"
+#   containers:
+#     - name: mycontainer 
+#       image: nginx:1.27.0 
+#       ports:
+#         - containerPort: 80 
+#       securityContext:
+#         allowPrivilegeEscalation: false
+#         capabilities:
+#           drop:
+#             - ALL
+#         privileged: false
+#         readOnlyRootFilesystem: true
+#       volumeMounts:
+#         - name: myvolume 
+#           mountPath: /tmp
+#         - name: nginx-cache 
+#           mountPath: /var/cache/nginx
+#         - name: nginx-log 
+#           mountPath: /var/log/nginx
+#         - name: nginx-run 
+#           mountPath: /var/run
+#       resources:
+#         requests:
+#           cpu: "50m"
+#           memory: "128Mi"
+#         limits:
+#           cpu: "100m"
+#           memory: "256Mi"
 
-      readinessProbe:
-        httpGet:
-          path: /
-          port: 80
-      livenessProbe:
-        httpGet:  
-          path: /
-          port: 80
-      startupProbe:
-        httpGet:
-          path: /
-          port: 80
-  volumes:
-      - name: myvolume 
-        emptyDir: {}
-      - name: nginx-cache 
-        emptyDir: {}
-      - name: nginx-log
-        emptyDir: {}
-      - name: nginx-run
-        emptyDir: {}
+#       readinessProbe:
+#         httpGet:
+#           path: /
+#           port: 80
+#       livenessProbe:
+#         httpGet:  
+#           path: /
+#           port: 80
+#       startupProbe:
+#         httpGet:
+#           path: /
+#           port: 80
+#   volumes:
+#       - name: myvolume 
+#         emptyDir: {}
+#       - name: nginx-cache 
+#         emptyDir: {}
+#       - name: nginx-log
+#         emptyDir: {}
+#       - name: nginx-run
+#         emptyDir: {}
 

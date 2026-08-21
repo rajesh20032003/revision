@@ -1,0 +1,100 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata: 
+  name: deploy-app 
+  namespace: shop-dev 
+spec: 
+  replicas: 3
+  revisionHistoryLimit: 3
+  strategy: 
+    # Fixed: Corrected indentation for canary block
+    canary:
+      steps:
+        - setWeight: 20
+        - analysis:
+            templates:
+              - templateName: frontend-smoke-test 
+        - pause: { duration: 1m }
+        - setWeight: 40
+        - analysis:
+            templates:
+              - templateName: frontend-smoke-test 
+        - pause: { duration: 1m }
+  selector: 
+    matchLabels: 
+      app: my-app
+  template:
+    metadata: 
+      labels:
+        app: my-app 
+    spec: 
+      terminationGracePeriodSeconds: 60
+      containers: 
+
+        - name: my-app 
+          image: nginx:latest 
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - containerPort: 80
+          volumeMounts: 
+            - name: myvolume 
+              mountPath: /tmp 
+            - name: nginx-cache 
+              mountPath: /var/cache/nginx 
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-log 
+              mountPath: /var/log/nginx 
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "256Mi"
+            limits:
+              cpu: "100m"
+              memory: "512Mi"
+      
+          lifecycle:
+            preStop:
+               exec: 
+                 command: 
+                   - /bin/sh 
+                   - -c
+                   - "sleep 10"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 5 
+            initialDelaySeconds: 5
+            periodSeconds: 10 
+            timeoutSeconds: 5
+            successThreshold: 1 
+          livenessProbe:
+            httpGet:  
+              path: / 
+              port: 80 
+            failureThreshold: 5 
+            initialDelaySeconds: 5
+            periodSeconds: 10 
+            timeoutSeconds: 5
+            successThreshold: 1 
+          startupProbe:
+            httpGet:
+              path: / 
+              port: 80 
+            failureThreshold: 5 
+            initialDelaySeconds: 5
+            periodSeconds: 10 
+            timeoutSeconds: 5
+            successThreshold: 1 
+      volumes:
+        - name: myvolume
+          emptyDir: {}
+        - name: nginx-cache 
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-log 
+          emptyDir: {}
+
+          

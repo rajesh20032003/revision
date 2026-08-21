@@ -1,0 +1,23 @@
+
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate 
+metadata:
+  name: frontend-smoke-test 
+  namespace: shop-dev 
+spec: 
+  metrics:
+    - name: web-check
+      interval: 10s
+      count: 3 
+      failureLimit: 1 
+      provider:
+        job:
+          spec:
+            template:
+               spec:
+                containers:
+                  - name: test-curl
+                    image: alpine
+                    # Simple script to check if the app's home page returns HTTP 200
+                    command: ["sh", "-c", "apk add --no-cache curl && curl --fail https://google.com"]
+                restartPolicy: Never

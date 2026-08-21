@@ -1,10 +1,10 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: shop-config
-  namespace: shop
-data:
-  PRODUCT_SERVICE_URL: "http://product-service:8080"
-  USER_SERVICE_URL: "http://user-service:8080"
-  CART_SERVICE_URL: "http://cart-service:8080"
-  ORDER_SERVICE_URL: "http://order-service:8080"
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: shop-config
+#   namespace: shop
+# data:
+#   PRODUCT_SERVICE_URL: "http://product-service:8080"
+#   USER_SERVICE_URL: "http://user-service:8080"
+#   CART_SERVICE_URL: "http://cart-service:8080"
+#   ORDER_SERVICE_URL: "http://order-service:8080"
