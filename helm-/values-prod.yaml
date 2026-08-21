@@ -4,7 +4,7 @@ Namespace: hll
 product_service:
   kind: deployment 
   name: product-service 
-  replicas: 2
+  replicas: 3
   imagename: nginx:1.27.0
   rollingupdate: false 
   app_name: my-app

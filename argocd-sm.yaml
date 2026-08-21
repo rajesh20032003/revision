@@ -14,11 +14,14 @@ spec:
     metadata:
       name: 'shop-env-{{env}}'
     spec:
-      project: shop-project 
+      project: default 
       source:
         repoURL: "https://github.com/rajesh20032003/revision"
         targetRevision: HEAD 
-        path: k8s
+        path: helm-
+        helm:
+          valueFiles:
+            - 'values-{{ env }}.yaml'
       destination: 
         server: "https://kubernetes.default.svc"
         namespace: "shop-{{env}}"
