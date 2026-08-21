@@ -2,7 +2,7 @@ apiVersion: {{ .Values.deploymentversion }}
 kind: Deployment
 metadata:
   name: {{ .Values.product_service.name }}
-  namespace: {{ .Values.Namespace }}
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.product_service.replicas }}
   strategy:

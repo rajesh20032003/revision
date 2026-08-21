@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject 
+metadata:
+  name: shop-project
+  namespace: argocd 
+spec:
+  description: "secure sandbox for the pg shop app"
+  sourceRepos:
+    - "https://github.com/rajesh20032003/revision"
+  destinations:
+    - server: "https://kubernetes.default.svc"
+      namespace: 'shop-*'
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

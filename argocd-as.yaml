@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: revision-stack 
+  namespace: argocd 
+spec:
+  generators:
+    - list:
+        elements:
+          - appName: revision-k8s
+            path: k8s
+            project: shop-project 
+          - appName: revision-helm
+            path: helm-
+            project: default 
+  template:
+    metadata:
+       name: "revision-stack-{{ appName }}"
+    spec:
+      project: "{{ project }}" 
+      source:
+        repoURL: "https://github.com/rajesh20032003/revision"
+        targetRevision: HEAD 
+        path: "{{ path }}"
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: shop
+      syncPolicy:
+        automated:
+          prune: true 
+          selfHeal: true 
