@@ -9,7 +9,7 @@ spec:
         elements:
           - appName: revision-k8s
             path: k8s
-            project: shop-project 
+            project: default
           - appName: revision-helm
             path: helm-
             project: default 
