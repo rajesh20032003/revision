@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Monorepo Shop</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; }
+  h1 { margin-bottom: 4px; }
+  .muted { color: #666; }
+  section { margin-top: 28px; }
+  button { cursor: pointer; padding: 6px 12px; }
+  ul { padding-left: 18px; }
+  #status span { display: inline-block; margin-right: 12px; padding: 2px 8px; border-radius: 4px; font-size: 13px; }
+  .up { background: #d4f7d4; }
+  .down { background: #f7d4d4; }
+</style>
+</head>
+<body>
+  <h1>Monorepo Shop</h1>
+  <p class="muted">gateway &rarr; product / user / cart / order services</p>
+
+  <section>
+    <h2>Service status</h2>
+    <div id="status">checking...</div>
+  </section>
+
+  <section>
+    <h2>Products</h2>
+    <ul id="products"></ul>
+  </section>
+
+  <section>
+    <h2>Place an order (user 1)</h2>
+    <button id="addToCart">Add product 1 to cart</button>
+    <button id="checkout">Checkout</button>
+    <pre id="orderResult"></pre>
+  </section>
+
+<script>
+async function loadStatus() {
+  const res = await fetch('/api/status');
+  const data = await res.json();
+  document.getElementById('status').innerHTML = Object.entries(data)
+    .map(([k, v]) => `<span class="${v === 'up' ? 'up' : 'down'}">${k}: ${v}</span>`).join('');
+}
+
+async function loadProducts() {
+  const res = await fetch('/api/products');
+  const data = await res.json();
+  document.getElementById('products').innerHTML = data
+    .map(p => `<li>#${p.id} ${p.name} — $${p.price} (stock: ${p.stock})</li>`).join('');
+}
+
+document.getElementById('addToCart').onclick = async () => {
+  await fetch('/api/carts/1/items', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ productId: 1, quantity: 1 })
+  });
+  alert('Added to cart');
+};
+
+document.getElementById('checkout').onclick = async () => {
+  const res = await fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: '1' })
+  });
+  document.getElementById('orderResult').textContent = JSON.stringify(await res.json(), null, 2);
+};
+
+loadStatus();
+loadProducts();
+</script>
+</body>
+</html>

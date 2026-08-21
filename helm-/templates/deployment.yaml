@@ -1,0 +1,117 @@
+apiVersion: {{ .Values.deploymentversion }}
+kind: Deployment
+metadata:
+  name: {{ .Values.product_service.name }}
+  namespace: {{ .Values.Namespace }}
+spec:
+  replicas: {{ .Values.product_service.replicas }}
+  strategy:
+  {{- if .Values.product_service.rollingupdate }}
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  {{- else }}
+     type: Recreate 
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ .Values.product_service.app_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.product_service.app_name }}
+    spec:
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: deploy-app-sa
+      {{- if .Values.product_service.securityContext }}
+      securityContext:
+        {{- toYaml .Values.product_service.securityContext | nindent 8 }}
+      {{- end }}
+      tolerations:
+        - key: "workload"
+          operator: "Equal"
+          value: "application"
+          effect: "NoSchedule"
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: my-app
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: workload
+                    operator: In
+                    values:
+                      - application
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: my-app
+      containers:
+        - name: my-app
+          image: {{.Values.product_service.imagename }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN
+            privileged: false
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: myvolume
+              mountPath: /tmp
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-log
+              mountPath: /var/log/nginx
+         {{- if .Values.product_service.resources }}
+          resources: 
+           {{- toYaml .Values.product_service.resources | nindent 12 }}
+        {{- end }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - "sleep 10"
+          {{- if .Values.product_service.readinessProbe }}
+          readinessProbe: 
+           {{- toYaml .Values.product_service.readinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.product_service.livenessProbe }}
+          livenessProbe: 
+           {{- toYaml .Values.product_service.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.product_service.startupProbe }}
+          startupProbe: 
+           {{- toYaml .Values.product_service.startupProbe | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: myvolume
+          emptyDir: {}
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-log
+          emptyDir: {}
+

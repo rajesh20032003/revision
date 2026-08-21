@@ -1,0 +1,63 @@
+# #BASE IMAGE 
+
+# FROM node-alpine@sha256:9459e243f620fff19380c51497493e91db1454f5a30847efe5bc5e50920748d5 as base
+# WORKDIR /app
+# COPY package*.json . 
+# RUN npm ci 
+# COPY . . 
+# RUN npm run build 
+# RUN npm prune --omit=dev 
+
+# #final image 
+
+# FROM node-alpine@sha256:9459e243f620fff19380c51497493e91db1454f5a30847efe5bc5e50920748d5 as final 
+# WORKDIR /app 
+# RUN addgroup -G appgroup && adduser -S appuser -G appgroup 
+# COPY --from=base --chown=appuser:appgroup /app/dist ./dist 
+# COPY --from=base --chown=appuser:appgroup /app/package*.json .
+# COPY --from=base --chown=appuser:appgroup /app/node_modules ./node_modules
+# USER appuser
+# ENV PORT=8080
+# EXPOSE 8080
+# ENTRYPOINT ["node"]
+# CMD ["dist/index.js"]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#base image 
+FROM node:18-alpine as base 
+WORKDIR /app 
+COPY package*.json . 
+RUN npm ci 
+COPY . . 
+RUN npm run build 
+RUN npm prune --omit=dev 
+
+#final image 
+
+FROM node:18-alpine as final 
+WORKDIR /app 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup 
+COPY --from=base --chown=appuser:appgroup /app/dist ./dist 
+COPY --from=base --chown=appuser:appgroup /app/node_modules ./node_modules 
+USER appuser 
+EXPOSE 8080
+ENTRYPOINT ["node"]
+CMD ["dist/index.js"]
+COPY --from=base --chown

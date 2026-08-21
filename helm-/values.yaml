@@ -1,0 +1,66 @@
+deploymentversion: apps/v1 
+Namespace: hl
+
+product_service:
+  kind: deployment 
+  name: product-service 
+  replicas: 5
+  imagename: nginx:1.27.0
+  rollingupdate: false 
+  app_name: my-app
+  securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 80
+    failureThreshold: 5
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 80
+    failureThreshold: 5
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+  startupProbe:
+    httpGet:
+      path: /
+      port: 80
+    failureThreshold: 5
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "256Mi"
+    limits:
+      cpu: "100m"
+      memory: "512Mi"
+  port: 80
+
+services:
+  - name: product-service
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+  - name: order-service
+    type: ClusterIP
+    port: 80
+    targetPort: 3000
+  - name: payment-service
+    type: NodePort
+    port: 443
+    targetPort: 8443

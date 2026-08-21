@@ -1,0 +1,664 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata: 
+  name: deploy-app 
+  namespace: default 
+spec: 
+  replicas: 1
+  strategy: 
+      type: RollingUpdate
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 0
+  selector: 
+    matchLabels: 
+      app: my-app
+  template:
+    metadata: 
+      labels:
+        app: my-app 
+    spec: 
+      terminationGracePeriodSeconds: 60
+      serviceAccountName: deploy-app-sa
+      securityContext: 
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      tolerations:
+            - key: "workload"
+              operator: "Equal"
+              value: "application"
+              effect: "NoSchedule"
+      topologySpreadConstraints:
+            - maxSkew: 1 
+              topologyKey: kubernetes.io/hostname 
+              whenUnsatisfiable: DoNotSchedule 
+              labelSelector:
+                matchLabels:
+                  app: my-app 
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100 
+              preference:
+               matchExpressions:
+                  - key: workload 
+                    operator: In 
+                    values: 
+                      - application 
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100 
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector: 
+                  matchLabels:
+                    app: my-app 
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.36
+          command: ["sh", "-c", "chown -R 1000:2000 /var/www/html"]
+          securityContext:
+            runAsUser: 0          # Runs briefly as root to modify hostpath permissions
+            runAsNonRoot: false   # Allowed here just for initialization
+            privileged: false
+          volumeMounts:
+            - name: persistent-storage-volume
+              mountPath: /var/www/html
+      containers: 
+
+        - name: my-app 
+          image: nginx:1.27.0 
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - containerPort: 80
+          securityContext: 
+            allowPrivilegeEscalation: false
+            capabilities: 
+              drop:
+                - ALL
+              add:
+                - CHOWN
+            privileged: false
+            readOnlyRootFilesystem: true
+          envFrom:
+            - configMapRef:
+                name: deploy-app-cm 
+            - secretRef:
+                 name: deploy-app-sc 
+          env:
+            - name: USER_NAME 
+              valueFrom:
+                configMapKeyRef:
+                  name: deploy-app-cm 
+                  key: name 
+            - name: DB_PASSWORD 
+              valueFrom:
+                 secretKeyRef:
+                    name: deploy-app-sc 
+                    key: password 
+          
+          volumeMounts: 
+            - name: myvolume 
+              mountPath: /tmp 
+            - name: nginx-cache 
+              mountPath: /var/cache/nginx 
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-log 
+              mountPath: /var/log/nginx 
+            - name: config 
+              mountPath: /etc/config 
+            - name: persistent-storage-volume 
+              mountPath: /var/www/html
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "256Mi"
+            limits:
+              cpu: "100m"
+              memory: "512Mi"
+      
+          lifecycle:
+            preStop:
+               exec: 
+                 command: 
+                   - /bin/sh 
+                   - -c
+                   - "sleep 10"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            failureThreshold: 5 
+            initialDelaySeconds: 5
+            periodSeconds: 10 
+            timeoutSeconds: 5
+            successThreshold: 1 
+          livenessProbe:
+            httpGet:  
+              path: / 
+              port: 80 
+            failureThreshold: 5 
+            initialDelaySeconds: 5
+            periodSeconds: 10 
+            timeoutSeconds: 5
+            successThreshold: 1 
+          startupProbe:
+            httpGet:
+              path: / 
+              port: 80 
+            failureThreshold: 5 
+            initialDelaySeconds: 5
+            periodSeconds: 10 
+            timeoutSeconds: 5
+            successThreshold: 1 
+      volumes:
+        - name: myvolume
+          emptyDir: {}
+        - name: nginx-cache 
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-log 
+          emptyDir: {}
+        - name: config 
+          configMap: 
+            name: deploy-app-cm 
+        - name: persistent-storage-volume 
+          persistentVolumeClaim:
+             claimName: deploy-app-pvc 
+          
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: deploy-svc 
+  namespace: default 
+spec:
+  selector: 
+    app: my-app
+  type: ClusterIP
+  ports: 
+    - protocol: TCP 
+      port: 80
+      targetPort: 80 
+---
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: deploy-svc-nodeport 
+  namespace: default 
+spec: 
+  selector:
+    app: my-app 
+  type: NodePort 
+  ports:
+    - protocol: TCP 
+      port: 80
+      targetPort: 80 
+      nodePort: 30080
+    
+---
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: deploy-svc-loadbalancer 
+  namespace: default 
+spec: 
+  type: LoadBalancer
+  selector: 
+    app: my-app 
+  ports: 
+    - protocol: TCP 
+      port: 80 
+      targetPort: 80 
+
+---
+apiVersion: v1 
+kind: Service 
+metadata: 
+   name: deploy-svc-headless 
+   namespace: default 
+spec:
+  type: ClusterIP
+  clusterIP: None
+  selector: 
+    app: my-app 
+  ports: 
+    - protocol: TCP
+      port: 80
+      targetPort: 80 
+---
+apiVersion: v1 
+kind: ServiceAccount 
+metadata: 
+  name: deploy-app-sa 
+  namespace: default 
+
+---
+apiVersion: v1 
+kind: ConfigMap 
+metadata: 
+  name: deploy-app-cm 
+  namespace: default 
+data: 
+    name: rajesh-modified-modified
+
+---
+apiVersion: v1 
+kind: Secret
+metadata: 
+  name: deploy-app-sc
+  namespace: default 
+stringData:
+    password: mypassword 
+    
+
+--- 
+
+apiVersion: apps/v1 
+kind: StatefulSet 
+metadata:
+  name: deploy-app-st
+  namespace: default 
+spec: 
+  replicas: 1 
+  serviceName: deploy-svc-headless 
+  selector: 
+    matchLabels:
+      app: my-app-st 
+  template:
+    metadata: 
+      labels:
+        app: my-app-st 
+    spec:
+      serviceAccountName: deploy-app-sa 
+      terminationGracePeriodSeconds: 120 
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 3000
+        fsGroup: 2000
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: fix-permissions
+          image: busybox:1.36
+          # FIX 2: Swapped out /var/data for /var/www/html to match main container mount
+          command: ["sh", "-c", "chown -R 1000:2000 /var/www/html"]
+          securityContext:
+            runAsUser: 0
+            runAsNonRoot: false
+          volumeMounts:
+            - name: data-disk 
+              mountPath: /var/www/html # Changed to match app mount path
+        
+      containers:
+        - name: nginx 
+          image: nginx:1.27.0
+          ports:
+            - containerPort: 80 
+          securityContext:
+            allowPrivilegeEscalation: false 
+            readOnlyRootFilesystem: true 
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - CHOWN 
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "400m"
+              memory: "512Mi"
+          lifecycle:
+            preStop:
+              exec: 
+                command: 
+                  - /bin/sh 
+                  - -c
+                  - "sleep 10"
+          volumeMounts: 
+            - name: myvolume 
+              mountPath: /tmp 
+            - name: nginx-cache 
+              mountPath: /var/cache/nginx 
+            - name: nginx-run
+              mountPath: /var/run
+            - name: nginx-log 
+              mountPath: /var/log/nginx 
+            - name: config 
+              mountPath: /etc/config 
+            - name: data-disk
+              mountPath: /var/www/html   # FIX 1: Fixed spelling from mounthPath
+  
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 5 
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 5 
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 5 
+      volumes:
+        - name: myvolume
+          emptyDir: {}
+        - name: nginx-cache 
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-log 
+          emptyDir: {}
+        - name: config 
+          configMap: 
+            name: deploy-app-cm   
+
+  # FIX 3: Moved out of pod spec block up to statefulset spec block level
+  volumeClaimTemplates:
+    - metadata:
+        name: data-disk 
+      spec:
+        accessModes:
+          - ReadWriteOnce 
+        storageClassName: standard
+        resources:
+          requests:
+            storage: 1Gi
+
+
+---
+
+apiVersion: policy/v1 
+kind: PodDisruptionBudget 
+metadata: 
+  name: pdb-deploy-app
+  namespace: default 
+spec:
+  minAvailable: 2
+  selector: 
+    matchLabels:
+      app: my-app-st 
+
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass 
+metadata: 
+  name: fast-storage 
+provisioner: "csi-driver"
+reclaimPolicy: Delete 
+volumeBindingMode: WaitForFirstConsumer 
+allowVolumeExpansion: true 
+parameters: 
+  type: "ebs"
+
+--- 
+apiVersion: networking.k8s.io/v1 
+kind: NetworkPolicy 
+metadata: 
+  name: deploy-app-netpolicy
+  namespace: default 
+spec: 
+  podSelector: 
+    matchLabels: 
+      app: my-app 
+  policyTypes:
+    - Ingress
+    - Egress 
+  ingress: 
+    - from:
+       - podSelector:
+          matchLabels:
+            app: app1 
+      ports:
+        - protocol: TCP
+          port: 80 
+  egress:
+    - to:
+      - namespaceSelector: {}
+        podSelector: 
+          matchLabels:
+            k8s-app: kube-dns 
+      ports:
+        - protocol: UDP 
+          port: 53
+        - protocol: TCP
+          port: 53 
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy 
+metadata: 
+  name: default-deny-all
+  namespace: default 
+spec: 
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress 
+
+
+      
+---
+apiVersion: v1 
+kind: PersistentVolume 
+metadata:
+  name: deploy-app-pv
+spec:
+  capacity:
+     storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Retain 
+  storageClassName: default 
+  hostPath:
+    path: /mnt/data 
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: deploy-app-pvc
+  namespace: default 
+spec:
+  accessModes:
+     - ReadWriteOnce 
+  storageClassName: default 
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: v1
+kind: LimitRange 
+metadata: 
+  name: default-limit-range 
+  namespace: default 
+spec: 
+   limits:
+     - type: Container 
+       default:
+          cpu: "500m"
+          memory: "512Mi"
+       defaultRequest:
+          cpu: "100m"
+          memory: "256Mi"
+       min:
+         cpu: "10m"
+         memory: "64Mi"
+       max:
+         cpu: "1"
+         memory: "1Gi" 
+
+---
+apiVersion: v1 
+kind: ResourceQuota 
+metadata: 
+  name: default-resource-quota 
+  namespace: default 
+spec: 
+  hard: 
+    pods: "10"
+    requests.cpu: "20"
+    requests.memory: "2Gi"
+    limits.cpu: "4"
+    limits.memory: "4Gi"
+
+---
+apiVersion: v1
+kind: ServiceAccount 
+metadata: 
+  name: deploy-sa
+  namespace: default 
+
+--- 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role 
+metadata: 
+  name: pod-reader-role 
+  namespace: default 
+rules: 
+  - apiGroups: [""]
+    resources: ["pods", "pods/log"]
+    verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding 
+metadata:
+  name: read-pods-binding 
+  namespace: default 
+subjects:
+  - kind: ServiceAccount 
+    name: deploy-sa 
+    namespace: default 
+roleRef:
+    kind: Role 
+    name: pod-reader-role 
+    apiGroup: rbac.authorization.k8s.io
+  
+--- 
+apiVersion: rbac.authorization.k8s.io/v1 
+kind: ClusterRole 
+metadata: 
+  name: cluster-node-viewer 
+rules: 
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get","list","watch"]
+
+--- 
+apiVersion: rbac.authorization.k8s.io/v1 
+kind: ClusterRoleBinding 
+metadata: 
+  name: global-node-viewer-binding 
+subjects:
+  - kind: ServiceAccount 
+    name: deploy-sa 
+    namespace: default 
+roleRef:
+  kind: ClusterRole 
+  name: cluster-node-viewer 
+  apiGroup: rbac.authorization.k8s.io
+
+
+
+       
+---
+apiVersion: networking.k8s.io/v1 
+kind: Ingress 
+metadata:  
+  name: shop-app-ingress 
+  namespace: shop
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  ingressClassName: nginx 
+  tls:
+    - hosts:
+        - shop.local 
+      secretName: shop-tls 
+  rules:
+    - host: "shop.local"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix 
+            backend:
+              service:
+                name: gateway
+                port:
+                  number: 8080 
+          - path: /cart
+            pathType: Prefix 
+            backend:
+              service:
+                name: cart-service
+                port:
+                  number: 8080
+
+--- 
+apiVersion: autoscaling/v2 
+kind: HorizontalPodAutoScaler 
+metadata: 
+  name: product-service-hpa 
+  namespace: shop 
+spec: 
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment 
+    name: product-service 
+  minReplicas: 1
+  maxReplicas: 5 
+  metrics: 
+    - type: Resource 
+      resource: 
+        name: cpu 
+        target:
+          type: Utilization
+          averageUtilization: 50 
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoScaler 
+metadata: 
+  name: product-service-vpa 
+  namespace: shop 
+spec:
+  targetRef: 
+    kind: Deployment 
+    apiVersion: apps/v1
+    name: product-service 
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed: 
+          cpu: "50m"
+          memory: "64Mi"
+        maxAllowed:
+          cpu: "500m"
+          memory: "512Mi"
