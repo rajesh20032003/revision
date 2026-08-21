@@ -1,23 +1,23 @@
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: shop-active-service  # 👈 Live Production Traffic
-#   namespace: shop-dev
-# spec:
-#   ports:
-#     - port: 80
-#       targetPort: 80
-#   selector:
-#     app: my-bluegreen-app
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: shop-preview-service # 👈 Staging / QA Testing Traffic
-#   namespace: shop-dev
-# spec:
-#   ports:
-#     - port: 80
-#       targetPort: 80
-#   selector:
-#     app: my-bluegreen-app
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-active-service  # 👈 Live Production Traffic
+  namespace: shop-dev
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: my-bluegreen-app
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-preview-service # 👈 Staging / QA Testing Traffic
+  namespace: shop-dev
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    app: my-bluegreen-app
