@@ -22,17 +22,17 @@ spec:
         - pause: { duration: 1m }
         - setWeight: 60 
         - analysis:
-            template:
+            templates:
               - templateName: frontend-smoke-test 
         - pause: { duration: 1m }
         - setWeight: 80
         - analysis:
-           template: 
+           templates: 
               - templateName: frontend-smoke-test 
         - pause: { duration: 1m }
         - setWeight: 100
         - analysis: 
-           template: 
+           templates: 
              - templateName: frontend-smoke-test 
   selector: 
     matchLabels: 
