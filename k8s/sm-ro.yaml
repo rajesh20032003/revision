@@ -4,7 +4,7 @@ metadata:
   name: deploy-app 
   namespace: shop-dev 
 spec: 
-  replicas: 3
+  replicas: 5
   revisionHistoryLimit: 3
   strategy: 
     # Fixed: Corrected indentation for canary block
@@ -20,6 +20,20 @@ spec:
             templates:
               - templateName: frontend-smoke-test 
         - pause: { duration: 1m }
+        - setWeight: 60 
+        - analysis:
+            template:
+              - templateName: frontend-smoke-test 
+        - pause: { duration: 1m }
+        - setWeight: 80
+        - analysis:
+           template: 
+              - templateName: frontend-smoke-test 
+        - pause: { duration: 1m }
+        - setWeight: 100
+        - analysis: 
+           template: 
+             - templateName: frontend-smoke-test 
   selector: 
     matchLabels: 
       app: my-app
