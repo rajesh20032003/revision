@@ -17,7 +17,7 @@ spec:
                spec:
                 containers:
                   - name: test-curl
-                    image: alpine
+                    image: nginx
                     # Simple script to check if the app's home page returns HTTP 200
-                    command: ["sh", "-c", "apk add --no-cache curl && curl --fail https://google.com"]
+                    command: ["sh", "-c", "curl --fail https://google.com"]
                 restartPolicy: Never
