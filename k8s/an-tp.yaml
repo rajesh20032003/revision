@@ -19,5 +19,5 @@ spec:
                   - name: test-curl
                     image: alpine
                     # Simple script to check if the app's home page returns HTTP 200
-                    command: ["sh", "-c", "apk add --no-cache curl && curl --fail https://googles.com"]
+                    command: ["sh", "-c", "apk add --no-cache curl && curl --fail https://google.com"]
                 restartPolicy: Never
