@@ -32,7 +32,7 @@ spec:
       containers: 
 
         - name: my-app 
-          image: nginx:latest
+          image: nginx:1.27.0
           imagePullPolicy: IfNotPresent
           ports: 
             - containerPort: 80
