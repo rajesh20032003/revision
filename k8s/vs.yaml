@@ -6,8 +6,10 @@ metadata:
 spec:
   gateways:
     - shop-gateway 
+    - mesh 
   hosts:
     - "*"
+    - "deploy-app.shop-dev.svc.cluster.local"
   http:
     - name: primary
       match: 
