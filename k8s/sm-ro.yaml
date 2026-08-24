@@ -38,9 +38,12 @@ spec:
       trafficRouting:
         istio:
           virtualService:
-            name: shop-vs 
-            routes:
-              - primary
+           - name: shop-vs 
+             routes:
+               - primary
+           - name: sho-vs-internal
+             routes:
+               - primary
       stableService: sm-svc-stable 
       canaryService: sm-svc-canary 
       steps:
