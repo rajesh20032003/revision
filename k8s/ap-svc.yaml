@@ -31,7 +31,6 @@ metadata:
 spec:
   selector: 
     app: my-app
-    rollouts-pod-template-hash: "" 
   ports:
     - port: 80
       targetPort: 80
@@ -45,7 +44,6 @@ metadata:
 spec:
   selector: 
     app: my-app
-    rollouts-pod-template-hash: "" 
   ports:
     - port: 80
       targetPort: 80
