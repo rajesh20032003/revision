@@ -21,3 +21,29 @@ spec:
       targetPort: 80
   selector:
     app: my-bluegreen-app
+
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: sm-svc-stable
+  namespace: shop-dev
+spec:
+  selector: 
+    app: my-app
+  ports:
+    - port: 80
+      targetPort: 80
+
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: sm-svc-canary
+  namespace: shop-dev
+spec:
+  selector: 
+    app: my-app
+  ports:
+    - port: 80
+      targetPort: 80

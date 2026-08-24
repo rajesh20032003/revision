@@ -1,0 +1,17 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule 
+metadata:
+  name: shop-destinationrule 
+  namespace: shop-dev 
+spec:
+  host: sm-svc-stable 
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN
+  subsets:
+    - name: stable
+      labels:
+        app: my-app
+    - name: canary
+      labels:
+        app: my-app 
