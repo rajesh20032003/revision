@@ -1,28 +1,26 @@
 apiVersion: networking.istio.io/v1alpha3
-kind: VirtualService 
+kind: VirtualService
 metadata:
-  name: shop-vs 
-  namespace: shop-dev 
+  name: shop-vs-internal
+  namespace: shop-dev
 spec:
   gateways:
-    - shop-gateway 
+    - mesh
   hosts:
-    - "*"
+    - "deploy-app.shop-dev.svc.cluster.local"
   http:
     - name: primary
-      match: 
+      match:
         - uri:
-           prefix: / 
+            prefix: /
       route:
-        - destination: 
+        - destination:
             host: sm-svc-stable
-            subset: stable 
-            port: 
+            port:
               number: 80
           weight: 100
         - destination:
             host: sm-svc-canary
-            subset: canary
             port:
               number: 80
-          weight: 0 
+          weight: 0
