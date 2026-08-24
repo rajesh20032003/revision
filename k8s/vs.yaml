@@ -21,7 +21,7 @@ spec:
               number: 80
           weight: 100
         - destination:
-            host: sm-svc-stable
+            host: sm-svc-canary
             subset: canary
             port:
               number: 80
