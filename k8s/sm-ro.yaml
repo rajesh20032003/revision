@@ -42,7 +42,7 @@ spec:
       labels:
         app: my-app 
     spec: 
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: 70
       containers: 
 
         - name: my-app 
