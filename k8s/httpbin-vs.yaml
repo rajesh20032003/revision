@@ -1,7 +1,7 @@
 apiVersion: networking.istio.io/v1
 kind: VirtualService 
 metadata:
-  name: httpBin-external
+  name: httpbin-external
   namespace: shop-dev
 spec:
   hosts:
@@ -17,4 +17,3 @@ spec:
             host: httpbin.org
             port:
               number: 80 
-              
