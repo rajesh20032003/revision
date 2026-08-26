@@ -13,3 +13,9 @@ spec:
         - source:
             principals:
                - "cluster.local/ns/shop-dev/sa/client-a"
+      to:
+        - operation:
+            methods:
+              - GET 
+            paths:
+              - /80
