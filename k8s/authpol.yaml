@@ -1,21 +1,21 @@
-apiVersion: security.istio.io/v1
-kind: AuthorizationPolicy
-metadata:
-  name: allow-client-a 
-  namespace: shop-dev
-spec:
-  selector:
-    matchLabels:
-      app: my-app
-  action: ALLOW 
-  rules:
-    - from:
-        - source:
-            principals:
-               - "cluster.local/ns/shop-dev/sa/client-a"
-      to:
-        - operation:
-            methods:
-              - GET 
-            paths:
-              - /80
+# apiVersion: security.istio.io/v1
+# kind: AuthorizationPolicy
+# metadata:
+#   name: allow-client-a 
+#   namespace: shop-dev
+# spec:
+#   selector:
+#     matchLabels:
+#       app: my-app
+#   action: ALLOW 
+#   rules:
+#     - from:
+#         - source:
+#             principals:
+#                - "cluster.local/ns/shop-dev/sa/client-a"
+#       to:
+#         - operation:
+#             methods:
+#               - GET 
+#             paths:
+#               - /80
