@@ -5,5 +5,5 @@ metadata:
   namespace: shop-dev
 spec:
   mtls:
-    mode: PERMISSIVE 
+    mode: STRICT 
   
