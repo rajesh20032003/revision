@@ -1,0 +1,9 @@
+apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata: 
+  name: shop-mtls 
+  namespace: shop-dev
+spec:
+  mtls:
+    mode: STRICT 
+  
