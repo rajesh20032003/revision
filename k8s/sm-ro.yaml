@@ -7,7 +7,6 @@ spec:
   replicas: 2
   revisionHistoryLimit: 3
   strategy: 
-    Fixed: Corrected indentation for canary block
     canary:
       steps:
         - setWeight: 20
