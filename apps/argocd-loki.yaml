@@ -6,9 +6,10 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://grafana.github.io/helm-charts
+    # FIX: Point directly to the new official community Helm Chart repository
+    repoURL: https://grafana-community.github.io/helm-charts
     chart: loki
-    targetRevision: "6.14.0" # Hardcoding a stable v6.x major version is safer than using "*"
+    targetRevision: "6.55.0" # This is the final ultra-stable OSS version from this release line
     helm:
       values: |
         deploymentMode: SimpleScalable
@@ -17,7 +18,7 @@ spec:
           commonConfig:
             replication_factor: 1
           
-          # CRITICAL FIX: Schema Configuration is mandatory for Loki v6+
+          # Explicit mapping layout structure matching Loki 3.x schema requirements
           schemaConfig:
             configs:
               - from: "2024-04-01"
@@ -37,10 +38,9 @@ spec:
             s3:
               region: us-east-1
               s3ForcePathStyle: false
-              # Direct reference to your generated generic secret keys
               secretName: loki-s3-secret
         
-        # Scaling components down for efficient resource allocation
+        # Optimize resource footprints on your single node testing environment
         read:
           replicas: 1
         write:
