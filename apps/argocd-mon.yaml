@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: monitoring-stack
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - appName: kube-prometheus-stack
+            repoURL: https://prometheus-community.github.io/helm-charts
+            chart: kube-prometheus-stack
+          - appName: loki-stack
+            repoURL: https://grafana.github.io/helm-charts
+            chart: loki-stack
+  template:
+    metadata:
+      name: "{{appName}}"
+    spec:
+      project: default
+      source:
+        repoURL: "{{repoURL}}"
+        chart: "{{chart}}"
+        targetRevision: "*"
+      destination:
+        server: "https://kubernetes.default.svc"
+        namespace: monitoring
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

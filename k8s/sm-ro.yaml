@@ -146,5 +146,18 @@ spec:
           emptyDir: {}
         - name: nginx-log 
           emptyDir: {}
-
+---
+apiVersion: v1
+kind: Service 
+metadata:
+   name: deploy-app
+   namespace: shop-dev
+spec:
+  selector:
+    app: my-app
+  ports:
+    - port: 80
+      targetPort: 80 
+      protocol: TCP 
+    
           
