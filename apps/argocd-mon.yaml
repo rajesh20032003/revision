@@ -22,6 +22,8 @@ spec:
         repoURL: "{{repoURL}}"
         chart: "{{chart}}"
         targetRevision: "*"
+        helm:
+          skipCrds: true 
       destination:
         server: "https://kubernetes.default.svc"
         namespace: monitoring
