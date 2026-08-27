@@ -10,9 +10,6 @@ spec:
           - appName: kube-prometheus-stack
             repoURL: https://prometheus-community.github.io/helm-charts
             chart: kube-prometheus-stack
-          - appName: loki-stack
-            repoURL: https://grafana.github.io/helm-charts
-            chart: loki-stack
   template:
     metadata:
       name: "{{appName}}"
