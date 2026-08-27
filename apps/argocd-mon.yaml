@@ -20,6 +20,19 @@ spec:
         chart: "{{chart}}"
         targetRevision: "*"
         helm:
+          values: |
+            grafana:
+              service:
+                type: NodePort
+                nodePort: 32000
+            prometheus:
+              service:
+                type: NodePort
+                nodePort: 32090
+            alertmanager:
+              service:
+                type: NodePort
+                nodePort: 32093
           skipCrds: true 
       destination:
         server: "https://kubernetes.default.svc"
