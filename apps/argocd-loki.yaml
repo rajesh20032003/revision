@@ -1,22 +1,29 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: loki-stack
+  name: loki
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://grafana.github.io/helm-charts
-    chart: loki-stack
+    chart: loki
     targetRevision: "*"
     helm:
       values: |
-        grafana:
-          enabled: false
-        promtail:
-          enabled: true
+        deploymentMode: SimpleScalable
         loki:
-          isDefault: false
+          auth_enabled: false
+          commonConfig:
+            replication_factor: 1
+          storage:
+            type: filesystem
+        read:
+          replicas: 2
+        write:
+          replicas: 2
+        backend:
+          replicas: 2
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
