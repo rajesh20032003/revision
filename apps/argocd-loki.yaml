@@ -17,13 +17,29 @@ spec:
           commonConfig:
             replication_factor: 1
           storage:
-            type: filesystem
+            type: s3
+            bucketNames:
+              chunks: s3-loki-bucket-rajesh
+              ruler: s3-loki-bucket-rajesh
+              admin: s3-loki-bucket-rajesh
+            s3:
+              region: us-east-1
+              s3ForcePathStyle: false
         read:
           replicas: 2
+          extraEnvFrom:
+            - secretRef:
+                name: loki-s3-secret
         write:
           replicas: 2
+          extraEnvFrom:
+            - secretRef:
+                name: loki-s3-secret
         backend:
           replicas: 2
+          extraEnvFrom:
+            - secretRef:
+                name: loki-s3-secret
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
