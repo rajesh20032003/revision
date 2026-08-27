@@ -1,23 +1,23 @@
-apiVersion: networking.istio.io/v1alpha3
-kind: DestinationRule
-metadata:
-  name: shop-destinationrule
-  namespace: shop-dev
-spec:
-  host: deploy-app.shop-dev.svc.cluster.local   # the root Service, applies to all versions
-  trafficPolicy:
-    tls:
-      mode: ISTIO_MUTUAL          # enforce mTLS between sidecars
-    connectionPool:
-      tcp:
-        maxConnections: 100
-      http:
-        http1MaxPendingRequests: 50
-        maxRequestsPerConnection: 10
-    outlierDetection:
-      consecutive5xxErrors: 5
-      interval: 30s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 50
-    loadBalancer:
-      simple: ROUND_ROBIN
+# apiVersion: networking.istio.io/v1alpha3
+# kind: DestinationRule
+# metadata:
+#   name: shop-destinationrule
+#   namespace: shop-dev
+# spec:
+#   host: deploy-app.shop-dev.svc.cluster.local   # the root Service, applies to all versions
+#   trafficPolicy:
+#     tls:
+#       mode: ISTIO_MUTUAL          # enforce mTLS between sidecars
+#     connectionPool:
+#       tcp:
+#         maxConnections: 100
+#       http:
+#         http1MaxPendingRequests: 50
+#         maxRequestsPerConnection: 10
+#     outlierDetection:
+#       consecutive5xxErrors: 5
+#       interval: 30s
+#       baseEjectionTime: 30s
+#       maxEjectionPercent: 50
+#     loadBalancer:
+#       simple: ROUND_ROBIN

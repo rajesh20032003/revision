@@ -1,19 +1,19 @@
-apiVersion: networking.istio.io/v1
-kind: VirtualService 
-metadata:
-  name: httpbin-external
-  namespace: shop-dev
-spec:
-  hosts:
-    - httpbin.org
-  http:
-    - match:
-       - uri:
-          exact: /get 
-      rewrite:
-        uri: /headers
-      route:
-        - destination:
-            host: httpbin.org
-            port:
-              number: 80 
+# apiVersion: networking.istio.io/v1
+# kind: VirtualService 
+# metadata:
+#   name: httpbin-external
+#   namespace: shop-dev
+# spec:
+#   hosts:
+#     - httpbin.org
+#   http:
+#     - match:
+#        - uri:
+#           exact: /get 
+#       rewrite:
+#         uri: /headers
+#       route:
+#         - destination:
+#             host: httpbin.org
+#             port:
+#               number: 80 

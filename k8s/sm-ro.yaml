@@ -7,45 +7,8 @@ spec:
   replicas: 2
   revisionHistoryLimit: 3
   strategy: 
-    # Fixed: Corrected indentation for canary block
-    # canary:
-    #   steps:
-    #     - setWeight: 20
-    #     - analysis:
-    #         templates:
-    #           - templateName: frontend-smoke-test 
-    #     - pause: { duration: 1m }
-    #     - setWeight: 40
-    #     - analysis:
-    #         templates:
-    #           - templateName: frontend-smoke-test 
-    #     - pause: { duration: 1m }
-    #     - setWeight: 60 
-    #     - analysis:
-    #         templates:
-    #           - templateName: frontend-smoke-test 
-    #     - pause: { duration: 1m }
-    #     - setWeight: 80
-    #     - analysis:
-    #        templates: 
-    #           - templateName: frontend-smoke-test 
-    #     - pause: { duration: 1m }
-    #     - setWeight: 100
-    #     - analysis: 
-    #        templates: 
-    #          - templateName: frontend-smoke-test 
+    Fixed: Corrected indentation for canary block
     canary:
-      trafficRouting:
-        istio:
-          virtualServices:
-            - name: shop-vs 
-              routes:
-               - primary
-            - name: shop-vs-internal
-              routes:
-               - primary
-      stableService: sm-svc-stable 
-      canaryService: sm-svc-canary 
       steps:
         - setWeight: 20
         - analysis:
@@ -64,13 +27,50 @@ spec:
         - pause: { duration: 1m }
         - setWeight: 80
         - analysis:
-            templates: 
+           templates: 
               - templateName: frontend-smoke-test 
         - pause: { duration: 1m }
         - setWeight: 100
         - analysis: 
-            templates: 
-              - templateName: frontend-smoke-test 
+           templates: 
+             - templateName: frontend-smoke-test 
+    # canary:
+    #   trafficRouting:
+    #     istio:
+    #       virtualServices:
+    #         - name: shop-vs 
+    #           routes:
+    #            - primary
+    #         - name: shop-vs-internal
+    #           routes:
+    #            - primary
+    #   stableService: sm-svc-stable 
+    #   canaryService: sm-svc-canary 
+    #   steps:
+    #     - setWeight: 20
+    #     - analysis:
+    #         templates:
+    #           - templateName: frontend-smoke-test 
+    #     - pause: { duration: 1m }
+    #     - setWeight: 40
+    #     - analysis:
+    #         templates:
+    #           - templateName: frontend-smoke-test 
+    #     - pause: { duration: 1m }
+    #     - setWeight: 60 
+    #     - analysis:
+    #         templates:
+    #           - templateName: frontend-smoke-test 
+    #     - pause: { duration: 1m }
+    #     - setWeight: 80
+    #     - analysis:
+    #         templates: 
+    #           - templateName: frontend-smoke-test 
+    #     - pause: { duration: 1m }
+    #     - setWeight: 100
+    #     - analysis: 
+    #         templates: 
+    #           - templateName: frontend-smoke-test 
   selector: 
     matchLabels: 
       app: my-app
