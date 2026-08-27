@@ -6,19 +6,20 @@ metadata:
 spec:
   project: default
   source:
-    # FIX: Point directly to the new official community Helm Chart repository
-    repoURL: https://grafana-community.github.io/helm-charts
+    repoURL: https://github.io
     chart: loki
-    targetRevision: "6.55.0" # This is the final ultra-stable OSS version from this release line
+    targetRevision: "6.55.0" 
     helm:
       values: |
         deploymentMode: SimpleScalable
+        
+        # FIX: Force components to drop local PVC storage requirements for local minikube 
         loki:
           auth_enabled: false
           commonConfig:
             replication_factor: 1
           
-          # Explicit mapping layout structure matching Loki 3.x schema requirements
+          # Native structure for Helm Chart 6.x config compilation
           schemaConfig:
             configs:
               - from: "2024-04-01"
@@ -39,17 +40,26 @@ spec:
               region: us-east-1
               s3ForcePathStyle: false
               secretName: loki-s3-secret
-        
-        # Optimize resource footprints on your single node testing environment
-        read:
-          replicas: 1
+
+        # FIX: Turn off local PVC storage volume allocations for microservice pods
         write:
           replicas: 1
+          persistence:
+            size: 0
+            volumeClaimsEnabled: false
+        read:
+          replicas: 1
+          persistence:
+            size: 0
+            volumeClaimsEnabled: false
         backend:
           replicas: 1
+          persistence:
+            size: 0
+            volumeClaimsEnabled: false
           
   destination:
-    server: https://kubernetes.default.svc
+    server: https://default.svc
     namespace: monitoring
   syncPolicy:
     automated:
