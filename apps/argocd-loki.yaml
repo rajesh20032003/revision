@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://grafana.github.io/helm-charts
     chart: loki
-    targetRevision: "*"
+    targetRevision: "6.14.0" # Hardcoding a stable v6.x major version is safer than using "*"
     helm:
       values: |
         deploymentMode: SimpleScalable
@@ -16,6 +16,18 @@ spec:
           auth_enabled: false
           commonConfig:
             replication_factor: 1
+          
+          # CRITICAL FIX: Schema Configuration is mandatory for Loki v6+
+          schemaConfig:
+            configs:
+              - from: "2024-04-01"
+                object_store: s3
+                store: tsdb
+                schema: v13
+                index:
+                  prefix: index_
+                  period: 24h
+
           storage:
             type: s3
             bucketNames:
@@ -25,21 +37,17 @@ spec:
             s3:
               region: us-east-1
               s3ForcePathStyle: false
+              # Direct reference to your generated generic secret keys
+              secretName: loki-s3-secret
+        
+        # Scaling components down for efficient resource allocation
         read:
-          replicas: 2
-          extraEnvFrom:
-            - secretRef:
-                name: loki-s3-secret
+          replicas: 1
         write:
-          replicas: 2
-          extraEnvFrom:
-            - secretRef:
-                name: loki-s3-secret
+          replicas: 1
         backend:
-          replicas: 2
-          extraEnvFrom:
-            - secretRef:
-                name: loki-s3-secret
+          replicas: 1
+          
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
