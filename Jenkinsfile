@@ -1,4 +1,4 @@
-@Library('shared-lib-mb')_
+@Library('shared-lib-mb@main')_
 pipeline {
    agent any 
 
@@ -49,7 +49,7 @@ pipeline {
             changeset 'services/cart-service/**'
         }
          steps {
-        docker-build(service: 'cart-service')
+        dockerBuild(service: 'cart-service')
          }
       }
 
@@ -58,9 +58,7 @@ pipeline {
             changeset 'services/gateway/**'
         }
          steps {
-          sh '''
-          docker build -t gateway-service:${BUILD_NUMBER} services/gateway
-          '''
+          dockerBuild(service: 'gateway')
          }
       }
     }
