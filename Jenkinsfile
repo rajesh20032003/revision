@@ -53,7 +53,7 @@ pipeline {
       stage('gateway-service'){
          steps {
           sh '''
-          docker build -t cart-service:${BUILD_NUMBER} services/gateway
+          docker build -t gateway-service:${BUILD_NUMBER} services/gateway
           '''
          }
       }
