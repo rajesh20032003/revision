@@ -61,6 +61,35 @@ pipeline {
           dockerBuild(service: 'gateway')
          }
       }
+
+      stage('order-service'){
+        when {
+          changeset 'services/order-service/**'
+        }
+
+        steps {
+          dockerBuild(service: 'order-service')
+        }
+      }
+
+      stage('product-service') {
+        when {
+          changeset 'services/product-service/**'
+        }
+
+        steps {
+          dockerBuild(service: 'product-service')
+        }
+      }
+
+      stage('user-service') {
+        when {
+          changeset 'services/user-service/**'
+        }
+        steps {
+          dockerBuild(service: 'user-service')
+        }
+      }
     }
     }
 
