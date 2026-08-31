@@ -1,3 +1,4 @@
+@Library('shared-lib-mb')_
 pipeline {
    agent any 
 
@@ -48,25 +49,7 @@ pipeline {
             changeset 'services/cart-service/**'
         }
          steps {
-          sh '''
-          service='cart-service'
-
-          docker buildx create \
-          --name ${service}-builder \
-          --driver docker-container \
-          --use || docker buildx use ${service}-builder
-
-          docker buildx inspect --bootstrap 
-
-          docker buildx build \
-            --builder ${service}-builder \
-            --platform linux/amd64 \
-            --tag rajesh00007/${service}:${BUILD_NUMBER} \
-            --cache-from type=registry,ref=rajesh00007/${service}:buildcache \
-            --cache-to type=registry,ref=rajesh00007/${service}:buildcache,mode=max \
-            --push \
-            services/${service}
-          '''
+        docker-build(service: 'cart-service')
          }
       }
 

@@ -6,7 +6,7 @@ jk.md
 node_modules
 
 
-
+shared-lib/
 .nx/cache
 .nx/workspace-data
 .nx/migrate-runs
