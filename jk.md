@@ -1,5 +1,5 @@
 1. pipeline config 
-2. docker build and push with multix
+2. docker build and push with multix  done 
 3. sonarqube integration , trivy integration 
 4. sbom + dtrack integration
 5. cosign integration 

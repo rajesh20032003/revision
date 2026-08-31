@@ -91,6 +91,20 @@ pipeline {
         }
       }
     }
+
+    stage('trivy-scan') {
+      parallel{
+        stage('cart-service') {
+          steps{
+          sh '''
+            service='cart-service'
+            tag="${BUILD_NUMBER}"
+            trivy scan $service:$tag
+          '''
+        }
+        }
+      }
+    }
     }
 
    }
