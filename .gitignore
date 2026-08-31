@@ -3,3 +3,8 @@
 my-shop-cart-0.1.0.tgz
 helm/
 jk.md 
+
+
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
