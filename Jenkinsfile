@@ -100,7 +100,53 @@ pipeline {
             changeset 'services/cart-service/**'
           }
           steps{
+
           trivyScan(service: 'cart-service')
+
+        }
+        }
+
+          stage('user-service') {
+          when {
+            changeset 'services/user-service/**'
+          }
+          steps{
+
+          trivyScan(service: 'user-service')
+          
+        }
+        }
+
+          stage('gateway-service') {
+          when {
+            changeset 'services/gateway/**'
+          }
+          steps{
+
+          trivyScan(service: 'gateway')
+          
+        }
+        }
+
+          stage('product-service') {
+          when {
+            changeset 'services/product-service/**'
+          }
+          steps{
+
+          trivyScan(service: 'product-service')
+          
+        }
+        }
+
+          stage('order-service') {
+          when {
+            changeset 'services/order-service/**'
+          }
+          steps{
+
+          trivyScan(service: 'order-service')
+          
         }
         }
       }

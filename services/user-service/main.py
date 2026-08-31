@@ -33,7 +33,7 @@ def get_user(user_id: int):
     for u in users:
         if u.id == user_id:
             return u
-    raise HTTPException(status_code=404, detail="user not found")
+    raise HTTPException(status_code=404, detail="user not founds")
 
 
 @app.post("/users", response_model=User)
