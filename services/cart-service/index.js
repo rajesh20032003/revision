@@ -47,5 +47,5 @@ app.delete("/carts/:userId", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`cart-service listening ons :${PORT}`);
+  console.log(`cart-service listening on :${PORT}`);
 });
