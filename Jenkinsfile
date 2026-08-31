@@ -64,7 +64,7 @@ pipeline {
             --tag rajesh00007/${service}:${BUILD_NUMBER} \
             --cache-from type=registry,ref=rajesh00007/${service}:buildcache \
             --cache-to type=registry,ref=rajesh00007/${service}:buildcache,mode=max \
-            --push 
+            --push \
             services/${service}
           '''
          }
