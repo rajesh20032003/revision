@@ -42,9 +42,10 @@ pipeline {
 
     stage('build images') {
     parallel {
+
       stage('cart-services'){
         when{
-            changeset('services/cart-service')
+            changeset 'services/cart-service/**'
         }
          steps {
           sh '''
@@ -55,7 +56,7 @@ pipeline {
 
       stage('gateway-service'){
          when{
-            changeset('services/gateway')
+            changeset 'services/gateway/**'
         }
          steps {
           sh '''
