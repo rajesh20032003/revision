@@ -9,14 +9,19 @@ pipeline {
     
     stage('checkout'){
 
-      checkout scm 
+      steps {
+        checkout scm 
+      }
 
     }
 
     stage('check'){
+
+      steps {
       sh '''
         echo "running from thes ${PROJECT_NAME}"
       '''
+      }
     }
    }
 }
