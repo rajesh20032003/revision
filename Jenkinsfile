@@ -98,7 +98,7 @@ pipeline {
         stage('cart-service') {
           
           steps{
-            withCredentials([usernamePassword(credentialsId: 'docker-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+            withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
           sh '''
            registry='rajesh00007'
            echo ${PASS} | docker login -u "${USER}" --password-stdin ${registry} 
