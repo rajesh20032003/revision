@@ -15,7 +15,7 @@ pipeline {
 
     stage('check'){
       sh '''
-        echo "running from ${PROJECT_NAME}"
+        echo "running from the ${PROJECT_NAME}"
       '''
     }
    }
