@@ -8,4 +8,3 @@
 8. pr testing + different env testing 
 9. nexus integration 
 10. add gitops logic at the end 
-11. nx turbo logic implement 
