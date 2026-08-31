@@ -40,11 +40,7 @@ pipeline {
       }
 
     }
-    stage('trivy-db-update') {
-    steps {
-        sh 'trivy image --cache-dir /tmp/trivy-shared-db --download-db-only'
-    }
-}
+  
 
     stage('build images') {
     parallel {
@@ -97,7 +93,12 @@ pipeline {
       }
     }
     }
-
+    stage('trivy-db-update') {
+      
+    steps {
+        sh 'trivy image --cache-dir /tmp/trivy-shared-db --download-db-only'
+    }
+}
     stage('trivy-scan') {
       parallel{
         stage('cart-service') {
