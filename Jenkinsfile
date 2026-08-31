@@ -104,7 +104,7 @@ pipeline {
            echo ${PASS} | docker login -u "${USER}" --password-stdin 
             service='cart-service'
             tag="${BUILD_NUMBER}"
-            trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed ${service}:${tag}
+            trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed ${registry}/${service}:${tag}
           '''
           }
         }
