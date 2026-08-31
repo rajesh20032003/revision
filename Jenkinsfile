@@ -7,11 +7,29 @@ pipeline {
   }
 
   stages {
-    stage('checking') {
+    
+    stage('checkout') {
       steps {
-        sh """
-        echo " everything working "
-        """
+        checkout scm 
+      }
+    }
+
+    stage('detect affected services') {
+      steps {
+        script {
+          def affected = sh(
+            script: '''
+              npx nx show projects \
+                -- affected \
+                -- base=origin/main \
+                -- head=HEAD 
+            ''',
+            returnStdout: true 
+          ).trim()
+
+          echo "Affected Services:"
+          echo Affected
+        }
       }
     }
   }
