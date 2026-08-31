@@ -96,7 +96,9 @@ pipeline {
     stage('trivy-scan') {
       parallel{
         stage('cart-service') {
-          
+          when {
+            changeset 'services/cart-service/**'
+          }
           steps{
           trivyScan(service: 'cart-service')
         }
