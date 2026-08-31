@@ -41,7 +41,7 @@ pipeline {
     }
 
     stage('build images') {
-
+    parallel {
       stage('cart-service'){
          steps {
           sh '''
@@ -57,6 +57,7 @@ pipeline {
           '''
          }
       }
+    }
     }
 
    }
