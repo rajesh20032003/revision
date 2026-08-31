@@ -42,10 +42,10 @@ pipeline {
 
     stage('build images') {
     parallel {
-      stage('cart-service'){
+      stage('cart-services'){
          steps {
           sh '''
-          docker build -t cart-service${BUILD_NUMBER} service/cart-service
+          docker build -t cart-service:${BUILD_NUMBER} services/cart-service
           '''
          }
       }
@@ -53,7 +53,7 @@ pipeline {
       stage('gateway-service'){
          steps {
           sh '''
-          docker build -t cart-service${BUILD_NUMBER} service/gateway
+          docker build -t cart-service:${BUILD_NUMBER} services/gateway
           '''
          }
       }
