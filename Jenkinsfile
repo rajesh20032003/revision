@@ -101,7 +101,7 @@ pipeline {
             withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
           sh '''
            registry='rajesh00007'
-           echo ${PASS} | docker login -u "${USER}" --password-stdin ${registry} 
+           echo ${PASS} | docker login -u "${USER}" --password-stdin 
             service='cart-service'
             tag="${BUILD_NUMBER}"
             trivy image --exit-code 1 --severity CRITICAL --ignore-unfixed ${service}:${tag}
