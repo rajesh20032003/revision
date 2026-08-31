@@ -91,6 +91,7 @@ pipeline {
         }
       }
     }
+    }
 
     stage('trivy-scan') {
       parallel{
@@ -99,7 +100,7 @@ pipeline {
           sh '''
             service='cart-service'
             tag="${BUILD_NUMBER}"
-            trivy scan $service:$tag
+            trivy image --exit-code 1 --severity CRITICAL --no-fix ${service}:${tag}
           '''
         }
         }
@@ -107,7 +108,7 @@ pipeline {
     }
     }
 
-   }
+   
    post{
        always {
         echo 'i am from always'
