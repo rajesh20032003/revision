@@ -49,7 +49,23 @@ pipeline {
         }
          steps {
           sh '''
-          docker build -t cart-service:${BUILD_NUMBER} services/cart-service
+          service='cart-service'
+
+          docker buildx create \
+          --name ${service}-builder \
+          --driver docker-container \
+          --use || docker buildx use ${service}-builder
+
+          docker buildx inspect --bootstrap 
+
+          docker buildx build \
+            --builder ${service}-builder \
+            --platform linux/amd64 \
+            --tag rajesh00007/${service}:${BUILD_NUMBER} \
+            --cache-from type=registry,ref=rajesh00007/${service}:buildcache \
+            --cache-to type=registry,ref=rajesh00007/${service}:buildcache,mode=max \
+            --push 
+            services/${service}
           '''
          }
       }
