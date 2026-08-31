@@ -40,26 +40,25 @@ pipeline {
 
     }
 
-    stage('check'){
+    stage('build images') {
 
-      steps {
+      stage('cart-service'){
+         steps {
+          sh '''
+          docker build -t cart-service${BUILD_NUMBER} service/cart-service
+          '''
+         }
+      }
 
-      sh '''
-        echo "running from thes ${PROJECT_NAME}
-        env is ${ENV}"
-
-      '''
-
+      stage('gateway-service'){
+         steps {
+          sh '''
+          docker build -t cart-service${BUILD_NUMBER} service/gateway
+          '''
+         }
       }
     }
-    stage("ask permission") {
-      steps {
-        input message: 'deploy to prod?'
-        sh '''
-         echo "deploying to prod"
-        '''
-      }
-    }
+
    }
    post{
        always {
