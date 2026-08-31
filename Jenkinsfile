@@ -43,6 +43,9 @@ pipeline {
     stage('build images') {
     parallel {
       stage('cart-services'){
+        when{
+            changeset('services/cart-service')
+        }
          steps {
           sh '''
           docker build -t cart-service:${BUILD_NUMBER} services/cart-service
@@ -51,6 +54,9 @@ pipeline {
       }
 
       stage('gateway-service'){
+         when{
+            changeset('services/gateway')
+        }
          steps {
           sh '''
           docker build -t gateway-service:${BUILD_NUMBER} services/gateway
