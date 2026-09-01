@@ -108,8 +108,9 @@ pipeline {
             changeset 'services/cart-service/**'
           }
           steps{
-
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE'){
           trivyScan(service: 'cart-service')
+          }
 
         }
         }
@@ -120,7 +121,9 @@ pipeline {
           }
           steps{
 
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
           trivyScan(service: 'user-service')
+        }
           
         }
         }
@@ -131,7 +134,9 @@ pipeline {
           }
           steps{
 
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
           trivyScan(service: 'gateway')
+        }
           
         }
         }
@@ -142,7 +147,9 @@ pipeline {
           }
           steps{
 
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
           trivyScan(service: 'product-service')
+        }
           
         }
         }
@@ -153,7 +160,9 @@ pipeline {
           }
           steps{
 
+          catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
           trivyScan(service: 'order-service')
+        }
           
         }
         }
@@ -177,6 +186,34 @@ pipeline {
           }
           steps {
             sbomGen(service: 'gateway')
+          }
+        }
+
+        stage('order-service') {
+          when {
+            changeset 'services/order-service/**'
+          }
+          steps {
+            sbomGen(service: 'order-service')
+          }
+        }
+
+        stage('product-service') {
+          when {
+            changeset 'services/product-service/**'
+          }
+          steps{
+            sbomGen(service: 'product-service')
+          }
+        }
+
+        stage('user-service') {
+          when {
+            changeset 'services/user-service/**'
+          }
+
+          steps {
+            sbomGen(service: 'user-service')
           }
         }
       }
