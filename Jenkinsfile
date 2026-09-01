@@ -49,9 +49,11 @@ pipeline {
         when{
             changeset 'services/cart-service/**'
         }
-         steps {
+
+        steps {
         dockerBuild(service: 'cart-service')
          }
+
       }
 
       stage('gateway-service'){
@@ -94,7 +96,7 @@ pipeline {
     }
     }
     stage('trivy-db-update') {
-      
+
     steps {
         sh 'trivy image --cache-dir /tmp/trivy-shared-db --download-db-only'
     }
@@ -154,6 +156,32 @@ pipeline {
           trivyScan(service: 'order-service')
           
         }
+        }
+      }
+    }
+
+    stage('sbom-generation') {
+      parallel {
+        stage('cart-service') {
+          when{
+              changeset 'services/cart-service'
+          }
+          steps {
+            withCredentials([usernamePassword(
+                credentialsId: 'dockerhub-creds',
+                usernameVariable: 'USER',
+                passwordVariable: 'PASS')]) {
+     
+           sh '''
+            service='cart-service'
+            registry='rajesh00007'
+            printf '%s' "$PASS"  | docker login -u ${USER} --password-stdin
+            syft ${registry}/${service}:${BUILD_NUMBER} -o cyclonedx-json=${service}-${BUILD_NUMBER}.json
+            '''
+
+        }
+           
+          }
         }
       }
     }
