@@ -164,7 +164,7 @@ pipeline {
       parallel {
         stage('cart-service') {
           when{
-              changeset 'services/cart-service'
+              changeset 'services/cart-service/**'
           }
           steps {
              sbomGen(service: 'cart-service')
@@ -173,7 +173,7 @@ pipeline {
 
         stage('gateway') {
           when {
-            changeset 'service/gateway'
+            changeset 'services/gateway/**'
           }
           steps {
             sbomGen(service: 'gateway')
