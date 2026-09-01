@@ -167,20 +167,16 @@ pipeline {
               changeset 'services/cart-service'
           }
           steps {
-            withCredentials([usernamePassword(
-                credentialsId: 'dockerhub-creds',
-                usernameVariable: 'USER',
-                passwordVariable: 'PASS')]) {
-     
-           sh '''
-            service='cart-service'
-            registry='rajesh00007'
-            printf '%s' "$PASS"  | docker login -u ${USER} --password-stdin
-            syft ${registry}/${service}:${BUILD_NUMBER} -o cyclonedx-json=${service}-${BUILD_NUMBER}.json
-            '''
-
+             sbomGen(service: 'cart-service')
+          }
         }
-           
+
+        stage('gateway') {
+          when {
+            changeset 'service/gateway'
+          }
+          steps {
+            sbomGen(service: 'gateway')
           }
         }
       }
