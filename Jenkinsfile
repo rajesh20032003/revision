@@ -40,61 +40,100 @@ pipeline {
       }
 
     }
-  
 
-    stage('build images') {
-    parallel {
+    stage('detect changes') {
+      steps {
+        script {
+          def allServices = ['cart-service', 'gateway', 'order-service', 'product-service', 'user-service']
 
-      stage('cart-services'){
-        when{
-            changeset 'services/cart-service/**'
-        }
+          def changedFiles = sh(
+            script: "git diff --name-only HEAD~1 HEAD || git diff --name-only origin/main HEAD",
+            returnStdout: true 
+          ).trim().split('\n')
 
-        steps {
-        dockerBuild(service: 'cart-service')
-         }
+          env.CHANGED_SERVICES = allServices.findAll {
+            svc -> changedFiles.any {
+              file -> file.startsWith("services/${svc}/")
+            }
+          }.join(',')
 
-      }
-
-      stage('gateway-service'){
-         when{
-            changeset 'services/gateway/**'
-        }
-         steps {
-          dockerBuild(service: 'gateway')
-         }
-      }
-
-      stage('order-service'){
-        when {
-          changeset 'services/order-service/**'
-        }
-
-        steps {
-          dockerBuild(service: 'order-service')
-        }
-      }
-
-      stage('product-service') {
-        when {
-          changeset 'services/product-service/**'
-        }
-
-        steps {
-          dockerBuild(service: 'product-service')
-        }
-      }
-
-      stage('user-service') {
-        when {
-          changeset 'services/user-service/**'
-        }
-        steps {
-          dockerBuild(service: 'user-service')
+          echo "Changed services: ${env.CHANGED_SERVICES}"
         }
       }
     }
+   stage('build images') {
+    steps {
+      script {
+        def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+
+        if (services.isEmpty()) {
+          echo 'no services changed, skipping build'
+          return
+        }
+
+        def branches = services.collectEntries {
+          svc -> ["${svc}": {
+            dockerBuild(service: svc)
+          }]
+        }
+        parallel branches
+      }
     }
+   }
+
+    // stage('build images') {
+    // parallel {
+
+    //   stage('cart-services'){
+    //     when{
+    //         changeset 'services/cart-service/**'
+    //     }
+
+    //     steps {
+    //     dockerBuild(service: 'cart-service')
+    //      }
+
+    //   }
+
+    //   stage('gateway-service'){
+    //      when{
+    //         changeset 'services/gateway/**'
+    //     }
+    //      steps {
+    //       dockerBuild(service: 'gateway')
+    //      }
+    //   }
+
+    //   stage('order-service'){
+    //     when {
+    //       changeset 'services/order-service/**'
+    //     }
+
+    //     steps {
+    //       dockerBuild(service: 'order-service')
+    //     }
+    //   }
+
+    //   stage('product-service') {
+    //     when {
+    //       changeset 'services/product-service/**'
+    //     }
+
+    //     steps {
+    //       dockerBuild(service: 'product-service')
+    //     }
+    //   }
+
+    //   stage('user-service') {
+    //     when {
+    //       changeset 'services/user-service/**'
+    //     }
+    //     steps {
+    //       dockerBuild(service: 'user-service')
+    //     }
+    //   }
+    // }
+    // }
     stage('trivy-db-update') {
 
     steps {
