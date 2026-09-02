@@ -57,7 +57,7 @@ pipeline {
                 def branches = services.collectEntries { svc ->
                   ["${svc}": {
                       catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                          securityScan(service: svc)
+                          sec(service: svc)
                       }
                   }]
                 }
