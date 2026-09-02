@@ -102,6 +102,19 @@ pipeline {
         }
     }
 
+    stage('dtrack-upload') {
+        steps {
+            script {
+                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+                if (services.isEmpty()) { return }
+                def branches = services.collectEntries { svc ->
+                    ["${svc}": { dtrackUpload(service: svc) }]
+                }
+                parallel branches
+            }
+        }
+    }
+
    }
    post {
        always  { echo 'i am from always' }
