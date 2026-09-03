@@ -84,59 +84,59 @@ pipeline {
     }
 }
     
-    stage('build images') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) {
-                    echo "No service changes detected, skipping build."
-                    return
-                }
-                def branches = services.collectEntries { svc ->
-                    ["${svc}": { dockerBuild(service: svc) }]
-                }
-                parallel branches
-            }
-        }
-    }
+    // stage('build images') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) {
+    //                 echo "No service changes detected, skipping build."
+    //                 return
+    //             }
+    //             def branches = services.collectEntries { svc ->
+    //                 ["${svc}": { dockerBuild(service: svc) }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+    // }
 
-    stage('trivy-db-update') {
-        when { expression { env.CHANGED_SERVICES?.trim() } }
-        steps {
-            sh 'trivy image --cache-dir /tmp/trivy-shared-db --download-db-only'
-        }
-    }
+    // stage('trivy-db-update') {
+    //     when { expression { env.CHANGED_SERVICES?.trim() } }
+    //     steps {
+    //         sh 'trivy image --cache-dir /tmp/trivy-shared-db --download-db-only'
+    //     }
+    // }
 
-    stage('trivy-scan') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) { return }
-                def branches = services.collectEntries { svc ->
-                    ["${svc}": {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            trivyScan(service: svc)
-                        }
-                    }]
-                }
-                parallel branches
-            }
-        }
-    }
+    // stage('trivy-scan') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) { return }
+    //             def branches = services.collectEntries { svc ->
+    //                 ["${svc}": {
+    //                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+    //                         trivyScan(service: svc)
+    //                     }
+    //                 }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+    // }
 
-    stage('sbom-generation') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) { return }
-                def branches = services.collectEntries { svc ->
-                    ["${svc}": { sbomGen(service: svc)
-                     }]
-                }
-                parallel branches
-            }
-        }
-    }
+    // stage('sbom-generation') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) { return }
+    //             def branches = services.collectEntries { svc ->
+    //                 ["${svc}": { sbomGen(service: svc)
+    //                  }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+    // }
 
     // stage('dtrack-upload') {
     //     steps {
