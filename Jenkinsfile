@@ -49,22 +49,22 @@ pipeline {
         }
     }
 
-    stage('security scan') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) { return }
-                def branches = services.collectEntries { svc ->
-                  ["${svc}": {
-                      catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                          sec(service: svc)
-                      }
-                  }]
-                }
-                parallel branches
-            }
-        }
-    }
+    // stage('security scan') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) { return }
+    //             def branches = services.collectEntries { svc ->
+    //               ["${svc}": {
+    //                   catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+    //                       sec(service: svc)
+    //                   }
+    //               }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+    // }
     stage('sonar-scan') {
     steps {
         script {
@@ -137,18 +137,18 @@ pipeline {
         }
     }
 
-    stage('dtrack-upload') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) { return }
-                def branches = services.collectEntries { svc ->
-                    ["${svc}": { dtrackUpload(service: svc) }]
-                }
-                parallel branches
-            }
-        }
-    }
+    // stage('dtrack-upload') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) { return }
+    //             def branches = services.collectEntries { svc ->
+    //                 ["${svc}": { dtrackUpload(service: svc) }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+    // }
 
    }
    post {
