@@ -65,6 +65,24 @@ pipeline {
             }
         }
     }
+    stage('sonar-scan') {
+    steps {
+        script {
+            def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+            if (services.isEmpty()) { return }
+
+            def branches = services.collectEntries { svc ->
+                ["${svc}": {
+                    catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                        sonar(service: svc)
+  
+                    }
+                }]
+            }
+            parallel branches
+        }
+    }
+}
     
     stage('build images') {
         steps {
