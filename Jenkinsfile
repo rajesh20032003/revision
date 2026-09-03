@@ -74,6 +74,11 @@ pipeline {
     //     }
     // }
     stage('sonar-scan') {
+      when {
+          allOf {
+             expression { env.CHANGED_SERVICES?.trim() } 
+            }
+              }
     steps {
         script {
             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
@@ -93,7 +98,12 @@ pipeline {
 }
     
     stage('build images') {
-      when { branch 'main' }
+      when {
+          allOf {
+             expression { env.CHANGED_SERVICES?.trim() } 
+             branch 'main'
+            }
+              }
         steps {
             script {
                 def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
