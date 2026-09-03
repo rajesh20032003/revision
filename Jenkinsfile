@@ -30,24 +30,37 @@ pipeline {
       }
     }
 
-    stage('detect changes') {
-        steps {
-            script {
-                def allServices = ['cart-service', 'gateway', 'order-service', 'product-service', 'user-service']
+   stage('detect changes') {
+    steps {
+        script {
+            def allServices = ['cart-service', 'gateway', 'order-service', 'product-service', 'user-service']
 
-                def changedFiles = sh(
+            def changedFiles
+
+            if (env.CHANGE_ID) {
+                // This is a PR build — diff against the actual target branch
+                sh "git fetch --no-tags origin ${env.CHANGE_TARGET}"
+                changedFiles = sh(
+                    script: "git diff --name-only origin/${env.CHANGE_TARGET}...HEAD",
+                    returnStdout: true
+                ).trim().split('\n')
+            } else {
+                // Regular branch build (e.g. main after merge)
+                changedFiles = sh(
                     script: "git diff --name-only HEAD~1 HEAD || git diff --name-only origin/main HEAD",
                     returnStdout: true
                 ).trim().split('\n')
-
-                env.CHANGED_SERVICES = allServices.findAll { svc ->
-                    changedFiles.any { file -> file.startsWith("services/${svc}/") }
-                }.join(',')
-
-                echo "Changed services: ${env.CHANGED_SERVICES}"
             }
+
+            env.CHANGED_SERVICES = allServices.findAll { svc ->
+                changedFiles.any { file -> file.startsWith("services/${svc}/") }
+            }.join(',')
+
+            echo "Changed files: ${changedFiles.join(', ')}"
+            echo "Changed services: ${env.CHANGED_SERVICES}"
         }
     }
+}
 
     // stage('security scan') {
     //     steps {
