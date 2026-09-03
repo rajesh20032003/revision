@@ -1,7 +1,7 @@
 1. pipeline config 
 2. docker build and push with multix  done 
-3. sonarqube integration , trivy integration done 
-4. sbom + dtrack integration
+3. sonarqube integration done , trivy integration done 
+4. sbom + dtrack integration done 
 5. cosign integration skip 
 6. environment variables 
 7. shared library for jenkins done 
@@ -10,6 +10,6 @@
 10. add gitops logic at the end 
 
 
-add sonarqube 
+add sonarqube done 
 add sbom done  , dtrack integration done 
 check with pr detection
