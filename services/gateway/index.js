@@ -83,5 +83,5 @@ app.post("/api/orders", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`gateway listeningss on :${PORT}`);
+  console.log(`gateway listenings on :${PORT}`);
 });

@@ -12,3 +12,4 @@
 
 add sonarqube 
 add sbom done  , dtrack integration done 
+check with pr detection
