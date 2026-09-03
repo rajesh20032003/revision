@@ -110,7 +110,12 @@ pipeline {
     }
 
     stage('trivy-db-update') {
-        when { expression { env.CHANGED_SERVICES?.trim() } && {branch 'main'} }
+        when {
+          allOf {
+             expression { env.CHANGED_SERVICES?.trim() } 
+             branch 'main'
+            }
+              }
         steps {
             sh 'trivy image --cache-dir /tmp/trivy-shared-db --download-db-only'
         }
