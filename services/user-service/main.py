@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 
-app = FastAPI(title="user-services")
+app = FastAPI(title="user-service")
 
 
 class User(BaseModel):

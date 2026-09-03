@@ -66,6 +66,6 @@ func main() {
 	http.HandleFunc("/products", productsHandler)
 	http.HandleFunc("/products/", productsHandler)
 
-	log.Printf("product-service listenings on :%s", port)
+	log.Printf("product-service listening on :%s", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

@@ -61,6 +61,6 @@ end
 get "/orders/:id" do
   content_type :json
   order = orders[params["id"]]
-  halt 404, { error: "order not found" }.to_json unless order
+  halt 404, { error: "orders not found" }.to_json unless order
   order.to_json
 end

@@ -75,7 +75,7 @@ pipeline {
                 ["${svc}": {
                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                         sonar(service: svc)
-  
+                         quality()
                     }
                 }]
             }
@@ -130,7 +130,8 @@ pipeline {
                 def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
                 if (services.isEmpty()) { return }
                 def branches = services.collectEntries { svc ->
-                    ["${svc}": { sbomGen(service: svc) }]
+                    ["${svc}": { sbomGen(service: svc)
+                     }]
                 }
                 parallel branches
             }
