@@ -51,6 +51,19 @@ product_service:
       memory: "512Mi"
   port: 80
 
+
+images:
+ - name: cart-service
+   tag: 1.0.0
+ - name: product-service
+   tag: 1.0.0
+ - name: order-service
+   tag: 1.0.0
+ - name: user-service
+   tag: 1.0.0
+ - name: gateway
+   tag: 1.0.0
+
 services:
   - name: product-service
     type: ClusterIP
