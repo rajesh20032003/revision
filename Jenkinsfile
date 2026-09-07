@@ -131,36 +131,37 @@ pipeline {
         }
     }
 
-    // stage('trivy-scan') {
-    //     steps {
-    //         script {
-    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-    //             if (services.isEmpty()) { return }
-    //             def branches = services.collectEntries { svc ->
-    //                 ["${svc}": {
-    //                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-    //                         trivyScan(service: svc)
-    //                     }
-    //                 }]
-    //             }
-    //             parallel branches
-    //         }
-    //     }
-    // }
+    stage('trivy-scan') {
+        steps {
+            script {
+                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+                if (services.isEmpty()) { return }
+                def branches = services.collectEntries { svc ->
+                    ["${svc}": {
+                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            trivyScan(service: svc)
+                        }
+                    }]
+                }
+                parallel branches
+            }
+        }
+    }
 
-    // stage('sbom-generation') {
-    //     steps {
-    //         script {
-    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-    //             if (services.isEmpty()) { return }
-    //             def branches = services.collectEntries { svc ->
-    //                 ["${svc}": { sbomGen(service: svc)
-    //                  }]
-    //             }
-    //             parallel branches
-    //         }
-    //     }
-    // }
+    stage('sbom-generation') {
+        steps {
+            script {
+                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+                if (services.isEmpty()) { return }
+                def branches = services.collectEntries { svc ->
+                    ["${svc}": { sbomGen(service: svc)
+                     }]
+                }
+                parallel branches
+            }
+        }
+        
+    }
 
     // stage('dtrack-upload') {
     //     steps {
