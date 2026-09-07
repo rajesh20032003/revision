@@ -51,7 +51,7 @@ product_service:
   port: 80
 images:
   - name: cart-service
-    tag: 96-2c697b2
+    tag: 98-f90636b
   - name: product-service
     tag: 1.0.0
   - name: order-service
