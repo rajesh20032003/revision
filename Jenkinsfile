@@ -131,37 +131,37 @@ pipeline {
         }
     }
 
-    stage('trivy-scan') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) { return }
-                def branches = services.collectEntries { svc ->
-                    ["${svc}": {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            trivyScan(service: svc)
-                        }
-                    }]
-                }
-                parallel branches
-            }
-        }
-    }
+    // stage('trivy-scan') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) { return }
+    //             def branches = services.collectEntries { svc ->
+    //                 ["${svc}": {
+    //                     catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+    //                         trivyScan(service: svc)
+    //                     }
+    //                 }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+    // }
 
-    stage('sbom-generation') {
-        steps {
-            script {
-                def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
-                if (services.isEmpty()) { return }
-                def branches = services.collectEntries { svc ->
-                    ["${svc}": { sbomGen(service: svc)
-                     }]
-                }
-                parallel branches
-            }
-        }
-        
-    }
+    // stage('sbom-generation') {
+    //     steps {
+    //         script {
+    //             def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+    //             if (services.isEmpty()) { return }
+    //             def branches = services.collectEntries { svc ->
+    //                 ["${svc}": { sbomGen(service: svc)
+    //                  }]
+    //             }
+    //             parallel branches
+    //         }
+    //     }
+
+    // }
 
     // stage('dtrack-upload') {
     //     steps {
@@ -175,6 +175,28 @@ pipeline {
     //         }
     //     }
     // }
+
+    stage('update-gitops') {
+    when {
+        allOf {
+            expression { env.CHANGED_SERVICES?.trim() }
+            branch 'main'
+        }
+    }
+    steps {
+        script {
+            def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+            if (services.isEmpty()) { return }
+
+            def shortSha = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            def tag = "${env.BUILD_NUMBER}-${shortSha}"
+
+            services.each { svc ->
+                gitopsUpdate(service: svc, tag: tag)
+            }
+        }
+    }
+}
 
    }
    post {
