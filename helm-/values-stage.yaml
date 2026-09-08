@@ -55,7 +55,7 @@ images:
   - name: product-service
     tag: 107-0f91265
   - name: order-service
-    tag: 1.0.0
+    tag: 109-f81e1d8
   - name: user-service
     tag: 104-7bc9ce8
   - name: gateway
