@@ -53,7 +53,7 @@ images:
   - name: cart-service
     tag: 96-2c697b2
   - name: product-service
-    tag: 107-0f91265
+    tag: 109-f81e1d8
   - name: order-service
     tag: 109-f81e1d8
   - name: user-service
