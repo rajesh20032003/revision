@@ -176,7 +176,7 @@ pipeline {
     //     }
     // }
 
-    stage('update-gitops') {
+    stage('update-gitops-dev') {
     when {
         allOf {
             expression { env.CHANGED_SERVICES?.trim() }
@@ -208,7 +208,7 @@ pipeline {
     }
  }
 
- stage('update-gitops') {
+ stage('update-gitops-stage') {
     when {
         allOf {
             expression { env.CHANGED_SERVICES?.trim() }
@@ -241,7 +241,21 @@ pipeline {
     }
  }
 
-stage('update-gitops') {
+ stage('approve-prod') {
+    when {
+        allOf {
+            expression { env.CHANGED_SERVICES?.trim() }
+            branch 'main'
+        }
+    }
+    steps {
+        timeout(time: 30, unit: 'MINUTES') {
+            input message: "Deploy to PRODUCTION?", ok: "Deploy"
+        }
+    }
+}
+
+stage('update-gitops-prod') {
     when {
         allOf {
             expression { env.CHANGED_SERVICES?.trim() }
