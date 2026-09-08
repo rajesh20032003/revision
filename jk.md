@@ -19,4 +19,4 @@ or
 main branch will deploy to prod 
 dev branch for dev 
 stage branch for stage
-how to move via pr from dev to stage to prod . 
+how to move via pr from dev to stage to prod . done

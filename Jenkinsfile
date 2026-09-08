@@ -175,7 +175,21 @@ pipeline {
     //         }
     //     }
     // }
-
+    stage('report-summary') {
+    when {
+        expression { env.CHANGED_SERVICES?.trim() }
+    }
+    steps {
+        sh '''
+            echo "=== Artifact Summary ==="
+            find artifacts -type f | sort
+            echo ""
+            echo "=== File sizes ==="
+            find artifacts -type f -exec ls -lh {} \\; | awk '{print $9, "-", $5}'
+        '''
+        archiveArtifacts artifacts: 'artifacts/**', allowEmptyArchive: true
+    }
+}
     stage('update-gitops-dev') {
     when {
         allOf {
@@ -199,6 +213,9 @@ pipeline {
 
 }
  stage('smoke-test-dev') {
+    when {
+        expression { env.CHANGED_SERVICES?.trim() }
+    }
     steps {
         sh '''
             echo "Running smoke tests for dev environment"
@@ -232,6 +249,9 @@ pipeline {
 }
 
  stage('smoke-test-stage') {
+    when {
+        expression { env.CHANGED_SERVICES?.trim() }
+    }
     steps {
         sh '''
             echo "Running smoke tests for stage environment"
@@ -278,6 +298,9 @@ stage('update-gitops-prod') {
 
 }
  stage('smoke-test-prod') {
+    when {
+        expression { env.CHANGED_SERVICES?.trim() }
+    }
     steps {
         sh '''
             echo "Running smoke tests for prod environment"

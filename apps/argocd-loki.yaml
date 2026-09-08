@@ -1,70 +1,70 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: loki
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: https://github.io
-    chart: loki
-    targetRevision: "6.55.0" 
-    helm:
-      values: |
-        deploymentMode: SimpleScalable
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: loki
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: https://github.io
+#     chart: loki
+#     targetRevision: "6.55.0" 
+#     helm:
+#       values: |
+#         deploymentMode: SimpleScalable
         
-        # FIX: Force components to drop local PVC storage requirements for local minikube 
-        loki:
-          auth_enabled: false
-          commonConfig:
-            replication_factor: 1
+#         # FIX: Force components to drop local PVC storage requirements for local minikube 
+#         loki:
+#           auth_enabled: false
+#           commonConfig:
+#             replication_factor: 1
           
-          # Native structure for Helm Chart 6.x config compilation
-          schemaConfig:
-            configs:
-              - from: "2024-04-01"
-                object_store: s3
-                store: tsdb
-                schema: v13
-                index:
-                  prefix: index_
-                  period: 24h
+#           # Native structure for Helm Chart 6.x config compilation
+#           schemaConfig:
+#             configs:
+#               - from: "2024-04-01"
+#                 object_store: s3
+#                 store: tsdb
+#                 schema: v13
+#                 index:
+#                   prefix: index_
+#                   period: 24h
 
-          storage:
-            type: s3
-            bucketNames:
-              chunks: s3-loki-bucket-rajesh
-              ruler: s3-loki-bucket-rajesh
-              admin: s3-loki-bucket-rajesh
-            s3:
-              region: us-east-1
-              s3ForcePathStyle: false
-              secretName: loki-s3-secret
+#           storage:
+#             type: s3
+#             bucketNames:
+#               chunks: s3-loki-bucket-rajesh
+#               ruler: s3-loki-bucket-rajesh
+#               admin: s3-loki-bucket-rajesh
+#             s3:
+#               region: us-east-1
+#               s3ForcePathStyle: false
+#               secretName: loki-s3-secret
 
-        # FIX: Turn off local PVC storage volume allocations for microservice pods
-        write:
-          replicas: 1
-          persistence:
-            size: 0
-            volumeClaimsEnabled: false
-        read:
-          replicas: 1
-          persistence:
-            size: 0
-            volumeClaimsEnabled: false
-        backend:
-          replicas: 1
-          persistence:
-            size: 0
-            volumeClaimsEnabled: false
+#         # FIX: Turn off local PVC storage volume allocations for microservice pods
+#         write:
+#           replicas: 1
+#           persistence:
+#             size: 0
+#             volumeClaimsEnabled: false
+#         read:
+#           replicas: 1
+#           persistence:
+#             size: 0
+#             volumeClaimsEnabled: false
+#         backend:
+#           replicas: 1
+#           persistence:
+#             size: 0
+#             volumeClaimsEnabled: false
           
-  destination:
-    server:  "https://kubernetes.default.svc"
-    namespace: monitoring
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+#   destination:
+#     server:  "https://kubernetes.default.svc"
+#     namespace: monitoring
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+#       - ServerSideApply=true
