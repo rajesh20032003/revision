@@ -1,20 +1,19 @@
-deploymentversion: apps/v1 
-Namespace: hll
-
+deploymentversion: apps/v1
+Namespace: hl
 product_service:
-  kind: deployment 
-  name: product-service 
-  replicas: 3
+  kind: deployment
+  name: product-service
+  replicas: 5
   imagename: nginx:1.27.0
-  rollingupdate: false 
+  rollingupdate: false
   app_name: my-app
   securityContext:
-        runAsUser: 1000
-        runAsGroup: 3000
-        fsGroup: 2000
-        runAsNonRoot: true
-        seccompProfile:
-          type: RuntimeDefault
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
   readinessProbe:
     httpGet:
       path: /
@@ -50,7 +49,17 @@ product_service:
       cpu: "100m"
       memory: "512Mi"
   port: 80
-
+images:
+  - name: cart-service
+    tag: 96-2c697b2
+  - name: product-service
+    tag: 1.0.0
+  - name: order-service
+    tag: 1.0.0
+  - name: user-service
+    tag: 1.0.0
+  - name: gateway
+    tag: 1.0.0
 services:
   - name: product-service
     type: ClusterIP

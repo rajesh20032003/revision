@@ -192,11 +192,86 @@ pipeline {
             def tag = "${env.BUILD_NUMBER}-${shortSha}"
 
             services.each { svc ->
-                gitopsUpdate(service: svc, tag: tag)
+                gitopsUpdate(service: svc, tag: tag, file: 'values-dev.yaml')
             }
         }
     }
+
 }
+ stage('smoke-test-dev') {
+    steps {
+        sh '''
+            echo "Running smoke tests for dev environment"
+            sleep 5
+            echo "Smoke tests completed for dev environment"
+        '''
+    }
+ }
+
+ stage('update-gitops') {
+    when {
+        allOf {
+            expression { env.CHANGED_SERVICES?.trim() }
+            branch 'main'
+        }
+    }
+    steps {
+        script {
+            def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+            if (services.isEmpty()) { return }
+
+            def shortSha = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            def tag = "${env.BUILD_NUMBER}-${shortSha}"
+
+            services.each { svc ->
+                gitopsUpdate(service: svc, tag: tag, file: 'values-stage.yaml')
+            }
+        }
+    }
+
+}
+
+ stage('smoke-test-stage') {
+    steps {
+        sh '''
+            echo "Running smoke tests for stage environment"
+            sleep 5
+            echo "Smoke tests completed for stage environment"
+        '''
+    }
+ }
+
+stage('update-gitops') {
+    when {
+        allOf {
+            expression { env.CHANGED_SERVICES?.trim() }
+            branch 'main'
+        }
+    }
+    steps {
+        script {
+            def services = env.CHANGED_SERVICES.split(',').findAll { it.trim() }
+            if (services.isEmpty()) { return }
+
+            def shortSha = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            def tag = "${env.BUILD_NUMBER}-${shortSha}"
+
+            services.each { svc ->
+                gitopsUpdate(service: svc, tag: tag, file: 'values-prod.yaml')
+            }
+        }
+    }
+
+}
+ stage('smoke-test-prod') {
+    steps {
+        sh '''
+            echo "Running smoke tests for prod environment"
+            sleep 5
+            echo "Smoke tests completed for prod environment"
+        '''
+    }
+ }
 
    }
    post {
