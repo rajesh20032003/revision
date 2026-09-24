@@ -55,9 +55,9 @@ FROM node:18-alpine as final
 WORKDIR /app 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup 
 COPY --from=base --chown=appuser:appgroup /app/dist ./dist 
-COPY --from=base --chown=appuser:appgroup /app/node_modules ./node_modules 
+COPY --from=base --chown=appuser:appgroup /app/node_modules ./
+COPY --from=base --chown=appuser:appgroup /app/package*.json ./ 
 USER appuser 
 EXPOSE 8080
 ENTRYPOINT ["node"]
 CMD ["dist/index.js"]
-COPY --from=base --chown
